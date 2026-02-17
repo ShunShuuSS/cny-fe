@@ -3,6 +3,14 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+
+  --cny-red: #dc2626;
+  --cny-red-light: #ef4444;
+  --cny-red-dark: #991b1b;
+  --cny-gold: #f59e0b;
+  --cny-gold-light: #fcd34d;
+  --cny-gold-dark: #d97706;
+  --cny-crimson: #b91c1c;
 }
 
 @theme inline {
@@ -10,6 +18,14 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+
+  --color-cny-red: var(--cny-red);
+  --color-cny-red-light: var(--cny-red-light);
+  --color-cny-red-dark: var(--cny-red-dark);
+  --color-cny-gold: var(--cny-gold);
+  --color-cny-gold-light: var(--cny-gold-light);
+  --color-cny-gold-dark: var(--cny-gold-dark);
+  --color-cny-crimson: var(--cny-crimson);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -23,4 +39,37 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Force black text in all form inputs */
+input,
+textarea,
+select,
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"],
+input[type="url"] {
+  color: #000000 !important;
+  -webkit-text-fill-color: #000000 !important;
+}
+
+/* Override autocomplete styling */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill,
+textarea:-webkit-autofill:hover,
+textarea:-webkit-autofill:focus,
+select:-webkit-autofill,
+select:-webkit-autofill:hover,
+select:-webkit-autofill:focus {
+  -webkit-text-fill-color: #000000 !important;
+  color: #000000 !important;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: #9ca3af !important;
+  opacity: 1 !important;
 }
