@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 
 interface ResultDisplayProps {
   result: string;
@@ -9,6 +9,18 @@ interface ResultDisplayProps {
 
 export default function ResultDisplay({ result }: ResultDisplayProps) {
   const [showConfetti, setShowConfetti] = useState(true);
+  const [confettiItems] = useState(() => {
+    return [...Array(50)].map(() => ({
+      x:
+        Math.random() *
+        (typeof window !== "undefined" ? window.innerWidth : 1000),
+      rotate: Math.random() * 720 - 360,
+      duration: Math.random() * 2 + 2,
+      delay: Math.random() * 0.5,
+      left: Math.random() * 100,
+      emoji: ["🎊", "🎉", "✨", "🧧", "🏮"][Math.floor(Math.random() * 5)],
+    }));
+  });
 
   useEffect(() => {
     const timer = setTimeout(() => setShowConfetti(false), 3000);
@@ -19,31 +31,34 @@ export default function ResultDisplay({ result }: ResultDisplayProps) {
     <div className="flex min-h-screen items-center justify-center px-4 py-12 sm:py-16 relative overflow-hidden">
       {showConfetti && (
         <div className="absolute inset-0 pointer-events-none">
-          {[...Array(50)].map((_, i) => (
+          {confettiItems.map((item, i) => (
             <motion.div
               key={i}
               initial={{
-                x: Math.random() * window.innerWidth,
+                x: item.x,
                 y: -20,
                 rotate: 0,
                 opacity: 1,
               }}
               animate={{
-                y: window.innerHeight + 20,
-                rotate: Math.random() * 720 - 360,
+                y:
+                  typeof window !== "undefined"
+                    ? window.innerHeight + 20
+                    : 1000,
+                rotate: item.rotate,
                 opacity: 0,
               }}
               transition={{
-                duration: Math.random() * 2 + 2,
-                delay: Math.random() * 0.5,
+                duration: item.duration,
+                delay: item.delay,
                 ease: "linear",
               }}
               className="absolute"
               style={{
-                left: Math.random() * 100 + "%",
+                left: item.left + "%",
               }}
             >
-              {["🎊", "🎉", "✨", "🧧", "🏮"][Math.floor(Math.random() * 5)]}
+              {item.emoji}
             </motion.div>
           ))}
         </div>

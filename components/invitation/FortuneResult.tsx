@@ -79,7 +79,7 @@ export default function FortuneResult({
   const [copied, setCopied] = useState(false);
 
   // Normalize data - handle both legacy string format and new object format
-  const normalizeData = (data: any): ForecastData => {
+  const normalizeData = (data: string | ForecastData): ForecastData => {
     if (typeof data === "string") {
       // Legacy format - convert string to object
       return {
