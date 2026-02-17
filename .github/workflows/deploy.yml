@@ -36,5 +36,5 @@ jobs:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           projectName: cny-fe
-          directory: .next/standalone
+          directory: .next
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
