@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, use, useCallback, useMemo, useState } from "react";
+import { useEffect, useCallback, useMemo, useState, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import { useInvitation } from "@/lib/hooks/useInvitation";
 import { useAudioPlayer } from "@/lib/hooks/useAudioPlayer";
 import GateScreen from "@/components/invitation/GateScreen";
@@ -12,12 +13,11 @@ import MusicPlayer from "@/components/invitation/MusicPlayer";
 import PublicLayout from "@/components/layout/PublicLayout";
 import * as api from "@/lib/api";
 
-export default function InvitationPage({
-  params,
-}: {
-  params: Promise<{ year: string; slug: string }>;
-}) {
-  const { year, slug } = use(params);
+function InvitationContent() {
+  const searchParams = useSearchParams();
+  const year = searchParams.get("year") || "2026";
+  const slug = searchParams.get("slug") || "";
+
   const invitation = useInvitation(slug, parseInt(year));
   const [zodiacData, setZodiacData] = useState<
     Record<string, { image: string; name: string; name_en: string }>
@@ -39,7 +39,9 @@ export default function InvitationPage({
   const audioPlayer = useAudioPlayer(musicTracks);
 
   useEffect(() => {
-    invitation.loadInvitation();
+    if (slug) {
+      invitation.loadInvitation();
+    }
   }, [slug]);
 
   useEffect(() => {
@@ -78,17 +80,14 @@ export default function InvitationPage({
       tracks: musicTracks,
     });
 
-    // Mark that user has interacted with the site
     try {
       localStorage.setItem("cny_user_interacted", "true");
     } catch (e) {
       console.warn("Failed to store interaction flag:", e);
     }
 
-    // Open the gate first
     invitation.openGate();
 
-    // Start music after a brief delay to ensure smooth transition
     setTimeout(async () => {
       try {
         if (!audioPlayer.isPlaying) {
@@ -100,7 +99,6 @@ export default function InvitationPage({
         }
       } catch (error) {
         console.error("Failed to start music on gate click:", error);
-        // Retry once after a delay
         setTimeout(async () => {
           try {
             await audioPlayer.play();
@@ -119,17 +117,14 @@ export default function InvitationPage({
 
   const handlePlayTrack = useCallback(
     async (index: number) => {
-      // Mark user interaction
       try {
         localStorage.setItem("cny_user_interacted", "true");
       } catch (e) {
         console.warn("Failed to store interaction flag:", e);
       }
 
-      // Directly set the track index
       audioPlayer.setTrack(index);
 
-      // Auto-play the selected track
       try {
         await audioPlayer.play();
         console.log("Started playing selected track:", index);
@@ -147,6 +142,25 @@ export default function InvitationPage({
       audioPlayer.play();
     }
   }, [audioPlayer]);
+
+  if (!slug) {
+    return (
+      <PublicLayout>
+        <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-cny-red via-cny-crimson to-cny-red-dark p-4">
+          <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl p-8 max-w-md text-center">
+            <div className="text-6xl mb-4">🧧</div>
+            <h1 className="text-2xl font-bold text-gray-800 mb-2">
+              Missing Invitation
+            </h1>
+            <p className="text-gray-600">
+              Please provide a valid invitation link with year and slug
+              parameters.
+            </p>
+          </div>
+        </div>
+      </PublicLayout>
+    );
+  }
 
   if ((invitation.loading && !invitation.invitationData) || zodiacLoading) {
     return (
@@ -231,7 +245,6 @@ export default function InvitationPage({
         </div>
       </PublicLayout>
 
-      {/* Music Player - Shows after gate is clicked */}
       {invitation.step !== "GATE_CLOSED" &&
         invitation.step !== "GATE_OPENING" && (
           <MusicPlayer
@@ -247,5 +260,21 @@ export default function InvitationPage({
           />
         )}
     </div>
+  );
+}
+
+export default function InvitationPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-cny-red via-cny-crimson to-cny-red-dark">
+          <div className="text-2xl text-white font-semibold animate-pulse">
+            Loading...
+          </div>
+        </div>
+      }
+    >
+      <InvitationContent />
+    </Suspense>
   );
 }
