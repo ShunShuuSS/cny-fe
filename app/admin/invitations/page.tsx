@@ -38,7 +38,7 @@ export default function AdminDashboard() {
       );
       const invitationsData = response.data.map((inv) => ({
         ...inv,
-        url: `${window.location.origin}/${inv.year || new Date().getFullYear()}/${inv.slug}`,
+        url: `${window.location.origin}/invitation?year=${inv.year || new Date().getFullYear()}&slug=${inv.slug}`,
       }));
       setInvitations(invitationsData);
       setLoading(false);
@@ -48,7 +48,19 @@ export default function AdminDashboard() {
   };
 
   useEffect(() => {
-    loadInvitations();
+    let isMounted = true;
+
+    const fetchData = async () => {
+      if (isMounted) {
+        await loadInvitations();
+      }
+    };
+
+    fetchData();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   const createInvitation = async (e: React.FormEvent) => {
